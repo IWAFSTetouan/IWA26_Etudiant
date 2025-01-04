@@ -23,25 +23,30 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import univ.iwa.model.Etudiant;
+import univ.iwa.model.Filiere;
+import univ.iwa.repository.FiliereRepository;
 import univ.iwa.service.EtudiantService;
 
 @RestController
 @RequestMapping("iwa")
 public class EtudiantController {
-	@Autowired
-	EtudiantService etudiantService;
 	
-@PostMapping("etudiants")
+	@Autowired	EtudiantService etudiantService;
+	@Autowired  FiliereRepository filiereRepository;
+	
+@PostMapping("etudiants/{nomfil}")
 	public Etudiant addEtudiant(
 			@RequestParam Long id,
 			@RequestParam String nom,
 			@RequestParam int age,
-			@RequestParam MultipartFile photo
+			@RequestParam MultipartFile photo,
+			@PathVariable String nomfil
 			) throws IllegalStateException, IOException {
 	String path="src/main/resources/static/photos/"+id+".png";
 	photo.transferTo(Path.of(path));
 	String url="http://localhost:8080/iwa/photos/"+id;
-	Etudiant etudiant=new Etudiant(id, nom, age, url);
+	Filiere filiere=filiereRepository.findByNom(nomfil);
+	Etudiant etudiant=new Etudiant(id, nom, age, url,filiere);
 	return etudiantService.addEtudiant(etudiant);
 }
 @GetMapping("photos/{id}")
@@ -57,6 +62,11 @@ public ResponseEntity<Resource> getImage(@PathVariable Long id){
 @GetMapping("etudiants")
 	public List<Etudiant> getAllEtudiants(){
 	return etudiantService.getAllEtudiants();
+}
+@GetMapping("{nomfil}/etudiants")
+public List<Etudiant> getAllEtudiantsByFiliere(@PathVariable String nomfil){
+	Filiere filiere=filiereRepository.findByNom(nomfil);
+return etudiantService.getAllEtudiantsByFiliere(filiere);
 }
 @GetMapping("etudiants/{page}/{size}/{field}")
 	public List<Etudiant> getEtudiantPagination(@PathVariable int page,@PathVariable int size,@PathVariable String field){

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import univ.iwa.model.Etudiant;
+import univ.iwa.model.Filiere;
 import univ.iwa.repository.EtudiantRepository;
 
 @Service
@@ -55,6 +56,10 @@ public class EtudiantService {
 		Pageable pg=PageRequest.of(p,s,Sort.by(f));
 		Page<Etudiant> pageEtudiants=etudiantRepository.findAll(pg);
 		return pageEtudiants.getContent();
+	}
+
+	public List<Etudiant> getAllEtudiantsByFiliere(Filiere filiere) {
+		return etudiantRepository.findByFiliere(filiere);
 	}
 
 }
